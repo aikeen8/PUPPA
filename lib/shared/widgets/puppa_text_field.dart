@@ -10,6 +10,8 @@ class PuppaTextField extends StatelessWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType,
+    this.controller,
+    this.validator,
   });
 
   final String hintText;
@@ -17,12 +19,16 @@ class PuppaTextField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      validator: validator,
       style: const TextStyle(
         fontFamily: 'GoogleSansFlex',
         fontSize: 15,
@@ -32,8 +38,8 @@ class PuppaTextField extends StatelessWidget {
         hintText: hintText,
         hintStyle: TextStyle(
           fontFamily: 'GoogleSansFlex',
-          fontSize: 13, // made placeholder smaller
-          color: AppColors.darkBrown.withOpacity(0.45),
+          fontSize: 13,
+          color: AppColors.darkBrown.withValues(alpha: 0.45), // updated
         ),
         prefixIcon: Icon(
           icon,
@@ -60,6 +66,26 @@ class PuppaTextField extends StatelessWidget {
             color: AppColors.brown,
             width: 1.6,
           ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: const BorderSide(
+            color: Color(0xFFFF9999), 
+            width: 1.2,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: const BorderSide(
+            color: Color(0xFFFF9999), 
+            width: 1.6,
+          ),
+        ),
+        errorStyle: const TextStyle(
+          fontFamily: 'GoogleSansFlex',
+          fontWeight: FontWeight.w600,
+          fontSize: 11,
+          color: Color(0xFFFF9999), 
         ),
       ),
     );

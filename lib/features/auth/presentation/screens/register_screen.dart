@@ -3,37 +3,52 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/puppa_button.dart';
 import '../../../../shared/widgets/puppa_text_field.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmController = TextEditingController();
+  bool _showConfirmPassword = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() {
+      final isValid = _passwordController.text.length >= 8;
+      if (_showConfirmPassword != isValid) {
+        setState(() {
+          _showConfirmPassword = isValid;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
+    _confirmController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleSignUp() {
     if (_formKey.currentState!.validate()) {
-      debugPrint('login valid'); // updated
+      debugPrint('sign up valid'); // updated
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.brown,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -45,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.center,
                 children: [
                   Text(
-                    'WELCOME BACK TO',
+                    'WELCOME TO',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Heyam',
@@ -58,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const Text(
-                    'WELCOME BACK TO',
+                    'WELCOME TO',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Heyam',
@@ -93,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: 'Heyam',
                       fontSize: 124,
                       height: 0.75,
-                      color: AppColors.yellow,
+                      color: AppColors.brown,
                     ),
                   ),
                 ],
@@ -109,12 +124,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       PuppaTextField(
-                        controller: _usernameController,
-                        hintText: 'email/username',
-                        icon: Icons.person_rounded,
+                        controller: _emailController,
+                        hintText: 'email',
+                        icon: Icons.email_rounded,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'please enter your email or username';
+                            return 'please enter your email';
+                          }
+                          if (!value.contains('@')) {
+                            return 'please enter a valid email';
                           }
                           return null;
                         },
@@ -128,70 +146,45 @@ class _LoginScreenState extends State<LoginScreen> {
                         icon: Icons.password_rounded,
                         obscureText: true,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'please enter your password';
-                          }
-                          if (value.length < 8) {
+                          if (value == null || value.length < 8) {
                             return 'password must be at least 8 characters';
                           }
                           return null;
                         },
                       ),
 
-                      const SizedBox(height: 12),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: Checkbox(
-                                  value: false,
-                                  onChanged: (value) {},
-                                  activeColor: AppColors.yellow,
-                                  checkColor: AppColors.brown,
-                                  side: BorderSide(
-                                    color: AppColors.white.withValues(alpha: 0.95), // updated
-                                    width: 1.5,
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                        child: _showConfirmPassword
+                            ? Column(
+                                children: [
+                                  const SizedBox(height: 16),
+                                  PuppaTextField(
+                                    controller: _confirmController,
+                                    hintText: 'confirm password',
+                                    icon: Icons.password_rounded,
+                                    obscureText: true,
+                                    validator: (value) {
+                                      if (value != _passwordController.text) {
+                                        return 'passwords do not match';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'remember me',
-                                style: TextStyle(
-                                  fontFamily: 'GoogleSansFlex',
-                                  fontSize: 12,
-                                  color: AppColors.white.withValues(alpha: 0.95), // updated
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            'forgot password?',
-                            style: TextStyle(
-                              fontFamily: 'GoogleSansFlex',
-                              fontSize: 12,
-                              color: AppColors.white.withValues(alpha: 0.95), // updated
-                            ),
-                          ),
-                        ],
+                                ],
+                              )
+                            : const SizedBox.shrink(),
                       ),
 
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 60), 
 
                       PuppaButton(
-                        label: 'LOG IN',
-                        backgroundColor: AppColors.yellow,
-                        textColor: AppColors.brown,
+                        label: 'SIGN UP',
+                        backgroundColor: AppColors.brown,
+                        textColor: AppColors.yellow,
                         height: 64,
-                        onPressed: _handleLogin,
+                        onPressed: _handleSignUp,
                       ),
                     ],
                   ),
@@ -204,51 +197,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Don’t have an account? ',
+                    'Already have an account? ',
                     style: TextStyle(
                       fontFamily: 'GoogleSansFlex',
                       fontSize: 13,
-                      color: AppColors.white.withValues(alpha: 0.95), // updated
+                      color: AppColors.brown.withValues(alpha: 0.8), // updated
                     ),
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          opaque: false,
-                          pageBuilder: (context, animation, secondaryAnimation) =>
-                              const RegisterScreen(),
-                          transitionDuration: const Duration(milliseconds: 600),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            final slideTween = Tween(
-                                    begin: const Offset(0.0, -1.0), end: Offset.zero)
-                                .chain(CurveTween(curve: Curves.easeOut));
-
-                            final fadeTween = Tween(begin: 0.0, end: 1.0)
-                                .chain(CurveTween(curve: Curves.easeOut));
-
-                            return Stack(
-                              children: [
-                                SlideTransition(
-                                  position: animation.drive(slideTween),
-                                  child: Container(color: AppColors.yellow),
-                                ),
-                                FadeTransition(
-                                  opacity: animation.drive(fadeTween),
-                                  child: child,
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      );
+                      Navigator.pop(context);
                     },
                     child: Stack(
                       children: [
                         Text(
-                          'REGISTER',
+                          'LOG IN',
                           style: TextStyle(
                             fontFamily: 'Heyam',
                             fontSize: 15,
@@ -259,11 +222,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const Text(
-                          'REGISTER',
+                          'LOG IN',
                           style: TextStyle(
                             fontFamily: 'Heyam',
                             fontSize: 15,
-                            color: AppColors.yellow,
+                            color: AppColors.brown,
                           ),
                         ),
                       ],
